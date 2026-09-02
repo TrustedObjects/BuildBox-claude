@@ -1,0 +1,124 @@
+<!-- Generated from docs/src/getting-started/install.md by settings/claude/generate_reference.sh -->
+<!-- Do not edit: update the documentation source instead -->
+
+# Installation
+
+## Requirements
+
+The following tools must be installed on the host system before using BuildBox.
+
+### Ubuntu / Debian
+
+```bash
+sudo apt-get update
+sudo apt-get install -y bash make python3 curl git openssh-client
+```
+
+Docker must be installed separately following the [official guide](https://docs.docker.com/engine/install/debian).
+
+**Tip:**
+The preferred way to install Docker on Ubuntu or Debian is using the official Docker `apt` repository.
+
+**Warning:**
+Do not install Docker from Snap, and do not use Docker Desktop.
+
+### Fedora
+
+```bash
+sudo dnf install -y bash make python3 curl git openssh
+```
+
+Docker must be installed separately following the [official guide](https://docs.docker.com/engine/install/fedora).
+
+### ArchLinux
+
+```bash
+sudo pacman -S --needed bash make python curl git openssh docker
+```
+
+## Docker settings
+
+To be able to manage Docker, ensure your user is in the `docker` group. If it is not the case, do:
+```
+sudo usermod -aG docker $(whoami)
+```
+
+and reconnect your session.
+
+**Warning:**
+On Ubuntu, it seems you have to reboot to refresh groups. So, if after reconnecting, the `groups` command does not show the `docker` group, you have to reboot.
+
+## Install BuildBox
+
+Get [BuildBox latest stable release](https://github.com/TrustedObjects/BuildBox/releases/latest).
+
+Extract it, go to its directory, then install it system-wide:
+```
+sudo make install
+```
+
+This installs the `bbx` launcher to `/usr/local/bin` and all supporting files to
+`/usr/local/share/buildbox`. A custom prefix can be passed if needed:
+```
+sudo make install PREFIX=/opt/buildbox
+```
+
+Then fetch the latest BuildBox container image from Docker Hub:
+```
+bbx image fetch
+```
+
+To verify everything works, go to a BuildBox project directory and run:
+```
+bbx --help
+```
+
+**Tip:**
+Enable the [shell plugin](../user/shell_plugin.md) to display the active BuildBox
+project and target in your prompt, get shell completion for `bbx` commands, and
+have BuildBox environment variables automatically exported when you `cd` into a
+project. It takes a single line in your `~/.bashrc` or `~/.zshrc`.
+
+**Tip:**
+Working with [Claude Code](../user/claude.md)? Run `bbx claude install` once to get the
+BuildBox skills, so it knows the environment of your projects.
+
+## SSH settings
+
+If you access packages from private repositories, BuildBox is going to use your SSH client settings to clone them.
+So, SSH client has to be configured correctly.
+
+First of all, ensure you have an SSH key. If this is not the case, you have to generate one, without passphrase (leave it empty when asked):
+```
+ssh-keygen
+```
+
+**Warning:**
+For now, BuildBox doesn't support SSH keys with passphrases, this is planned for later.
+
+If you use SSH RSA keys, edit your `.ssh/config` file and add at the end:
+```
+Host *
+    PubkeyAcceptedKeyTypes +ssh-rsa
+```
+
+If you use SSH DSA keys, edit your `.ssh/config` file and add at the end:
+```
+Host *
+    PubkeyAcceptedKeyTypes +ssh-dss
+```
+
+## TTY USB devices
+
+If you plan to use TTY USB devices from BuildBox, you have to add the following udev rules on your host, in `/etc/udev/rules.d/99-buildbox.rules`:
+```
+ACTION=="add", SUBSYSTEM=="usb", RUN+="/usr/local/share/buildbox/docker/bin/buildbox_tty_usb_sync"
+ACTION=="remove", SUBSYSTEM=="usb", RUN+="/usr/local/share/buildbox/docker/bin/buildbox_tty_usb_sync"
+```
+If you installed with a custom prefix, adjust the path accordingly.
+
+Then, reload and trigger udev rules:
+```
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "trusted-objects",
+  "description": "Claude Code skills for BuildBox, the containerized build environment framework",
+  "owner": {
+    "name": "Trusted Objects",
+    "email": "rnd@trusted-objects.com"
+  },
+  "plugins": [
+    {
+      "name": "buildbox",
+      "description": "Work on BuildBox projects: targets, packages, tools, container, and the scripting API",
+      "author": {
+        "name": "Trusted Objects",
+        "email": "rnd@trusted-objects.com"
+      },
+      "category": "development",
+      "source": "./plugins/buildbox",
+      "homepage": "https://buildbox.trusted-objects.com/user/claude.html",
+      "version": "0.0.0"
+    }
+  ]
+}

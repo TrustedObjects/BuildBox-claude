@@ -1,0 +1,85 @@
+<!-- Generated from docs/src/dev/envvars.md by settings/claude/generate_reference.sh -->
+<!-- Do not edit: update the documentation source instead -->
+
+# Environment variables
+
+BuildBox uses several environment variables to work. These variables are kept
+up-to-date by [local environment mechanism](https://buildbox.trusted-objects.com/dev/api.html#local-environment), and are
+influenced by active target settings.
+
+**Warning:**
+Do not write BuildBox environment variables directly, use [BuildBox API](api)
+for that. This is the same for
+[standard environment variables managed by BuildBox](#standard-variables-managed-by-buildbox).
+
+BuildBox environment variables can be used anywhere, for example for scripting
+tests, packages distribution.
+
+## BuildBox specific variables
+
+It is possible to list only BuildBox environment variables and their values by
+running:
+```
+bbx env
+```
+
+Here is a partial list of these variables and their meaning:
+- `BB_TARGET`: active target name
+- `BB_PROJECT_DIR`: active project base directory
+- `BB_PROJECT_PROFILE_DIR`: active project profile directory (`.bbx/`)
+- `BB_PROJECT_SRC_DIR`: active project sources directory
+- `BB_TARGET_DIR`: active target base directory
+- `BB_TARGET_SRC_DIR`: active target sources directory
+- `BB_TARGET_BUILD_DIR`: active target build directory
+- `BB_LAST_TARGET`: previous active target name
+- `BB_TARGET_VAR_*`: target specific variable
+- `BB_TOOLS_DIR`: tools local clones directory
+- `BB_CACHE_DIR`: [BuildBox cache](https://buildbox.trusted-objects.com/dev/api.html#file-cache)
+- `BB_TRASH_KEEP_DAYS`: minimum days to keep data in BuildBox trash
+- `BB_BUILD_JOBS`: concurrent build jobs number
+- `BB_BINDIR`: BuildBox public and internal executables paths
+- `BB_DIR`: BuildBox sources directory
+- `BB_WORKDIR`: project profile directory path (`.bbx/`), bind-mounted at the same path on both host and container
+- `BB_LAUNCHER_ID`: PID of the host-side `bbx` launcher process; used to locate the named pipes for the [`bb_host_send`](https://buildbox.trusted-objects.com/dev/api.html) mechanism
+- `BB_PREBUILT_USERNAME`: [pre-built target](https://buildbox.trusted-objects.com/user/target.html#pre-built-targets) release user name for remote server
+- `BB_PREBUILT_SERVER`: [pre-built target](https://buildbox.trusted-objects.com/user/target.html#pre-built-targets) server address
+- `BB_PREBUILT_PATH`: [pre-built target](https://buildbox.trusted-objects.com/user/target.html#pre-built-targets) remote path
+- `BB_PREBUILT_ONLY_TAGGED`: [pre-built target](https://buildbox.trusted-objects.com/user/target.html#pre-built-targets) 1 to restrict pre-built target generation only to tagged projects, else 0
+- `BB_CONFIG`: active project [configuration](https://buildbox.trusted-objects.com/user/advanced.html#settings) file path (`.bbx/config`)
+- `BB_USER_CONFIG`: user [configuration](https://buildbox.trusted-objects.com/user/advanced.html#settings) file path (`~/.config/buildbox/config`)
+- `BB_SYSTEM_CONFIG`: system [configuration](https://buildbox.trusted-objects.com/user/advanced.html#settings) file path (`/etc/buildbox/config`)
+- `BB_USER_CONFIG_DIR`: user configuration directory, bind-mounted in the container at its host path; when unset, `$XDG_CONFIG_HOME/buildbox` is used
+- `BB_SYSTEM_CONFIG_DIR`: system configuration directory; when unset, `/etc/buildbox` is used
+- `BB_LOCAL_ENV_LAST_*`: used for [local environment](https://buildbox.trusted-objects.com/dev/api.html#local-environment) cache computation
+
+## Target build settings variables
+
+The following variables describe the active target hardware and its toolchain.
+They are not listed by `bbx env`:
+- `CPU`
+- `CPU_FAMILY`
+- `CPU_DESCRIPTION` (do not rely on its value to condition code flow as it is a human-readable string subject to change)
+- `CPUDEF`
+- `CHOST`
+
+BuildBox does not know anything about CPU and toolchains: these variables, as
+well as `CFLAGS` and `LDFLAGS`, come from the
+[target build settings](https://buildbox.trusted-objects.com/user/target.html#target-build-settings) of the active
+target, and default to a native build when the target file does not define
+them. Add a setting to the target file to change any of them, never write these
+variables directly.
+
+## Standard variables managed by BuildBox
+
+Moreover, BuildBox [local environment mechanism](https://buildbox.trusted-objects.com/dev/api.html#local-environment) keeps
+up-to-date the following environment variables:
+- `PATH`
+- `LD_LIBRARY_PATH`
+- `PKG_CONFIG_PATH`
+- `ACLOCAL_PATH`
+- `XDG_DATA_DIRS`
+- `CFLAGS`, target build directory and tools include paths, completed with the
+active target [build settings](https://buildbox.trusted-objects.com/user/target.html#target-build-settings) flags
+- `LDFLAGS`, target build directory and tools library paths, completed with the
+active target [build settings](https://buildbox.trusted-objects.com/user/target.html#target-build-settings) flags
+- `TMPDIR`, a temporary directory under the project profile directory

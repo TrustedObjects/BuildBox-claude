@@ -1,0 +1,10 @@
+{
+  "name": "buildbox",
+  "description": "Claude Code skills for BuildBox: working on a project, scripting inside BuildBox, and developing BuildBox itself",
+  "author": {
+    "name": "Trusted Objects",
+    "email": "rnd@trusted-objects.com"
+  },
+  "homepage": "https://buildbox.trusted-objects.com/user/claude.html",
+  "version": "0.0.0"
+}

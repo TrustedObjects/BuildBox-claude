@@ -1,0 +1,3 @@
+# Working clone left by scripts/sync.sh when run by hand. Anchored to the root,
+# so that it never matches plugins/buildbox/
+/buildbox/
