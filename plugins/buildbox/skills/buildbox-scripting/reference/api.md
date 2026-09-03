@@ -850,9 +850,10 @@ variables
 ## Locks
 Locks are used to control access to ressources or to synchronize processes.
 
-A lock is a symbolic link whose target is the PID of the process holding it.
-Creating a symbolic link is an unitary operation, and it carries the owner PID
-without any further write, so taking a lock can not race.
+A lock is a symbolic link whose target is `\<PID\>:\<SCOPE\>`, the process holding
+it and the scope this PID belongs to. Creating a symbolic link is an unitary
+operation, and it carries the owner without any further write, so taking a
+lock can not race.
 
 No file descriptor is involved: a lock is never inherited by a child process,
 and nothing started during a build can keep it alive.
@@ -1277,12 +1278,19 @@ Description
 #### Return
 0 if target is found
 ### bb\_get\_target\_vars()
-Get target variables
+Get target variables.
+
+The target profile is sourced, so the value of a variable may use any
+variable available at that point: a BuildBox environment variable, another
+field of the profile, or a variable the profile defines for its own needs.
+Values are printed expanded, and quotes around them are shell quotes, so
+they are not part of the value.
 #### Parameters
 - Target name
 #### Print
-Target variables list, formatted like this for example:
-- VAR_1="val1"
+Target variables list, one `VAR_NAME=VALUE` per line, formatted like
+this for example:
+- VAR_1=val1
 - VAR_2=10
 #### Return
 0 on success
@@ -1303,6 +1311,18 @@ Does nothing if bb_save_last_target was not called.
 ## Tools (packages)
 
 **Source file:** `_tool.sh`
+### bb\_get\_tool\_dir()
+Given a tool name, as written in a target tools list file, give the name of
+its directory in `BB_TOOLS_DIR`.
+A tool name may hold a path prefix, locating its package file in the project
+profile, which is not part of the tool directory name. It may also hold a
+revision (after `@` or `-`), which is part of it: as for packages, a
+revision may contain `/`, escaped to `_` so that the tool stays in a single
+directory.
+#### Parameters
+- Tool name
+#### Print
+Tool directory name
 ### bb\_find\_matching\_tools()
 Given a filter list, find matching tools for current project target.
 #### Parameters
