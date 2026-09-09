@@ -391,6 +391,27 @@ name, no revision in package name). This links point to packages sources in
 - `BB_TARGET_SRC_DIR`: path where cloned package are symlinked
 #### Return
 0 on success
+### bb\_update\_package()
+Update the sources of an already cloned package, when the revision it sits
+on can move.
+
+The update is delegated to the `bb_{proto}_update` function of the package
+protocol, on the sources the current target uses. A protocol providing no
+such function has nothing to update. Sources holding local work are kept as
+they are: an update never discards anything.
+
+Sources shared between targets are updated once, for every target using
+them, which is what sharing means (see [bb_clone_package()](#bb-clone-package)).
+#### Parameters
+- Package name
+#### Expected environment
+- `BB_PROJECT_PROFILE_DIR`: current project path
+- `BB_TARGET_SRC_DIR`: path where the target sources are
+#### Print
+What has been done, or why nothing was
+#### Return
+0 when updated, 2 when there is nothing to update, 3 when the
+sources hold local work and are kept as they are, else error
 ### bb\_is\_package\_cloned()
 Check if a package is cloned.
 #### Parameters
@@ -411,6 +432,22 @@ Get submodules if needed.
 - Branch, tag or changeset to use
 #### Return
 0 on success
+### bb\_git\_update()
+Update an already cloned Git repository, when the revision it sits on can
+move: a branch which got new commits.
+
+The update is a fast forward, so nothing already committed is ever lost. A
+revision which is a tag or a changeset designates a fixed commit and is left
+untouched, and so is a branch which received no new commit, one holding local
+commits which are not upstream, and a repository holding uncommitted work.
+#### Parameters
+- Directory holding the repository
+- Branch, tag or changeset the sources sit on
+#### Print
+What has been done, or why nothing was
+#### Return
+0 when updated, 2 when there is nothing to update, 3 when the
+repository holds local work and is kept as it is, else error
 ## Sources using HTTP
 Clone backend to get components archives from an HTTP server.
 
@@ -1356,6 +1393,25 @@ Packages sources are cloned into `BB_TOOLS_DIR` directory.
 - `BB_PROJECT_PROFILE_DIR`: current project path
 #### Return
 0 on success
+### bb\_update\_tool()
+Update an already cloned tool, when the revision it sits on can move.
+
+The update is delegated to the `bb_{proto}_update` function of the tool
+protocol. A protocol providing no such function has nothing to update, and
+sources holding local work are kept as they are.
+
+Tools are installed once per project and shared by all its targets, so
+updating a tool updates it for every target requiring it.
+#### Parameters
+- Tool package name
+#### Expected environment
+- `BB_TOOLS_DIR`: path where tools are installed
+- `BB_PROJECT_PROFILE_DIR`: current project path
+#### Print
+What has been done, or why nothing was
+#### Return
+0 when updated, 2 when there is nothing to update, 3 when the tool
+holds local work and is kept as it is, else error
 ### bb\_load\_tools()
 Load current target tools by running their (optional) `load.sh` script.
 Tools are loaded in order of appearance in target tools list file
