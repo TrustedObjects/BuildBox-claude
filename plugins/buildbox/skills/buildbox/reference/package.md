@@ -86,6 +86,10 @@ Indeed, some build modes are supporting sources sharing, other build modes do no
 It is possible to ignore build mode sources sharing support status by defining in package if its sources can be shared or not.
 For packages using build modes supporting shared sources, sources directory is symlinked into targets sources directory, else it is copied.
 
+A package with no build mode, only fetched by BuildBox and built by something else, has no build mode to ask: its sources are copied into each target, unless the package file sets `SRC_SUPPORTS_SHARING=1`.
+
+Sharing is decided when the sources are cloned. When it changes afterwards, in the package file or with the build mode, the sources already cloned keep the layout they got: it is brought back in line by [`bbx target clone -u`](https://buildbox.trusted-objects.com/user/target.html#fetch-target) for the current target, or by [`bbx fetch -u`](#fetch-package) for a single package.
+
 To ease package sources access from scripts, a symlink `<TARGET>/src/<PACKAGE_NAME>.sources` is created.
 `PACKAGE_NAME` only represents the name of the package, without revision suffix. The link is pointing to the package version used by the target.
 
