@@ -182,10 +182,30 @@ only concerns sources which can move, and never discards anything:
 | On a tag or a changeset | Left as they are, such a revision designates a fixed commit |
 | Holding local changes, or local commits which are not upstream | Left as they are |
 | Fetched with a protocol other than Git | Left as they are |
+| Whose remote repository holds a tag which does not designate the same commit any more | The update stops with an error, the history of the remote repository changed |
+| On a branch which was rewritten upstream, the commit they sit on being gone from it | The update stops with an error, the history of the remote repository changed |
+
+With `-u`, the sources of the current target are also brought back in line with
+the [sources sharing](https://buildbox.trusted-objects.com/user/package.html#package-sources) the packages support, when the
+two do not agree any more: sharing is decided when the sources are cloned, and a
+package whose package file or build mode changed afterwards keeps the layout it
+got on the day it was cloned. Sources which are shared now replace the target
+copy by a symlink to the project sources, the copy being sent to the BuildBox
+trash, and sources which are not shared any more replace the symlink by a copy
+of the project sources. Here too nothing is ever discarded: a target copy
+holding local work the project sources do not have is kept as it is, and so is a
+copy fetched with a protocol other than Git, which can not be asked for local
+work.
+
+A remote repository whose history changed stops the update with an error rather
+than going past it, since the sources here may sit on a commit which does not
+exist upstream any more. The log says what moved, a tag or a branch, and what it
+means for the sources takes a look by hand.
 
 The command reports what happened for each package and each tool: `updated`,
-`up to date`, or `kept` when local work stopped the update. Details are in
-`<TARGET>/target_clone.log`.
+`up to date`, or `kept` when local work stopped the update, preceded by
+`sharing fixed` or `sharing kept` when the sources layout was concerned. Details
+are in `<TARGET>/target_clone.log`.
 
 Sources [shared between targets](https://buildbox.trusted-objects.com/user/package.html#target-packages-list) are the same
 repository for every target using them, so updating them from one target

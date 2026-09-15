@@ -132,8 +132,12 @@ Result, depending on requested information.
 0 on success, else build mode stat is not supported or returned an error.
 ### bb\_package\_supports\_sources\_sharing()
 Generic function to know if a package supports sources sharing.
-Package doesn't need to be cloned yet. Returns 0 if package build mode is
-unknown.
+Package doesn't need to be cloned yet.
+
+`SRC_SUPPORTS_SHARING` declared in the package file always wins, and is the
+only way a package with no build mode can support sharing, since there is no
+build mode to ask. Without it, the answer comes from the build mode, and is 0
+when the build mode is unknown or does not tell.
 #### Parameters
 - Package name
 #### Return
@@ -391,6 +395,32 @@ name, no revision in package name). This links point to packages sources in
 - `BB_TARGET_SRC_DIR`: path where cloned package are symlinked
 #### Return
 0 on success
+### bb\_apply\_package\_sources\_sharing()
+Make the sources of a package in the current target match the sources sharing
+it supports, when the two do not agree any more.
+
+Sharing support is read when the sources are cloned (see [bb_clone_package()](#bb-clone-package)),
+and the layout stays as it is afterwards: a package whose package file or
+build mode changed keeps the layout it got on the day it was cloned. This
+brings it back in line, for the current target only:
+- sources which are shared now replace the target copy by a symlink to the
+project sources, the copy being moved to the trash,
+- sources which are not shared any more replace the symlink by a copy of the
+project sources, the project sources being left untouched.
+
+A target copy holding local work the project sources do not have is kept as
+it is: replacing it would discard that work, which is never done. So is a
+copy whose protocol can not be asked for local work.
+#### Parameters
+- Package name
+#### Expected environment
+- `BB_PROJECT_SRC_DIR`: path where the project sources are
+- `BB_TARGET_SRC_DIR`: path where the target sources are
+#### Print
+What has been done, or why nothing was
+#### Return
+0 when the sources layout changed, 2 when there is nothing to change,
+3 when the sources hold local work and are kept as they are, else error
 ### bb\_update\_package()
 Update the sources of an already cloned package, when the revision it sits
 on can move.
@@ -432,6 +462,20 @@ Get submodules if needed.
 - Branch, tag or changeset to use
 #### Return
 0 on success
+### bb\_git\_moved\_tags()
+Print the tags of a repository which do not designate the same commit
+upstream any more, one per line.
+
+Such a tag is the mark of a remote repository whose history changed, and it
+is what makes a fetch of the tags fail: Git refuses to overwrite a tag it
+already has. A tag which is not here yet is not one of them, it is simply
+fetched.
+#### Parameters
+- Directory holding the repository
+#### Print
+The name of every tag which moved upstream, one per line
+#### Return
+0 on success, else error
 ### bb\_git\_update()
 Update an already cloned Git repository, when the revision it sits on can
 move: a branch which got new commits.
@@ -448,6 +492,22 @@ What has been done, or why nothing was
 #### Return
 0 when updated, 2 when there is nothing to update, 3 when the
 repository holds local work and is kept as it is, else error
+### bb\_git\_has\_local\_work()
+Tell if a repository holds work another clone of the same repository does not
+have: uncommitted changes, untracked files, or commits the other clone has
+never seen.
+
+This answers the question asked before a clone is discarded, so anything
+which can not be checked is reported as local work: the answer is never
+optimistic.
+#### Parameters
+- Directory holding the repository
+- Directory holding the repository to compare with
+#### Print
+What the repository holds, when it holds local work
+#### Return
+1 when the repository holds local work, 2 when it can not be told,
+0 when it holds nothing the other clone has not
 ## Sources using HTTP
 Clone backend to get components archives from an HTTP server.
 
