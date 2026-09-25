@@ -1252,7 +1252,8 @@ Tag name
 #### Return
 0 on success, else error
 ### bb\_archive\_prebuilt\_target()
-Archive current target built files.
+Archive current target built files, as `\<TAG\>/\<TARGET\>.tar.xz` in the printed
+directory, the layout of the pre-built targets server.
 The following is archived:
 - target `build` directory
 - all inside target `src` directory, except shared sources
@@ -1275,10 +1276,12 @@ Export current target pre-built archive, made by [bb_archive_prebuilt_target()](
 0 on success, else error
 ### bb\_target\_has\_prebuilt()
 Check on the pre-built targets server if this target has an available
-pre-built archive.
+pre-built archive, `$BB_PREBUILT_PATH/\<TAG\>/\<TARGET\>.tar.xz`.
 #### Return
 0 if there is a pre-built archive for this target
 ### bb\_import\_prebuilt\_target()
+Get and extract the current target pre-built archive,
+`$BB_PREBUILT_PATH/\<TAG\>/\<TARGET\>.tar.xz` on the pre-built targets server.
 #### Return
 0 on success, else error
 ## Targets

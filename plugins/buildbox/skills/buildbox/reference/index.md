@@ -10,6 +10,8 @@ It is composed of one or several [targets](https://buildbox.trusted-objects.com/
 [Targets](https://buildbox.trusted-objects.com/user/target.html) embed [packages](https://buildbox.trusted-objects.com/user/package.html), which are software components built for them.
 And [tools](https://buildbox.trusted-objects.com/user/tool.html) are used by [targets](https://buildbox.trusted-objects.com/user/target.html) and involved in the build, test and distribution to release the deliverable.
 
+<ProjectLayout />
+
 BuildBox is used through the `bbx` command, directly from a project directory.
 It works like any other command-line tool: no shell to enter, no workspace to configure.
 Please run `bbx --help` to get a complete list of supported commands.
