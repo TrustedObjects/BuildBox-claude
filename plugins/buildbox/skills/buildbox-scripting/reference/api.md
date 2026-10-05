@@ -7,7 +7,7 @@ The API is used by BuildBox itself, and also can be used to develop shell
 scripts dealing with BuildBox. Functions are provided to handle everything
 that is managed by BuildBox.
 
-The API is implemented in the `usr/sbin` folder of BuildBox repository, its
+The API is implemented in the `src` folder of BuildBox repository, its
 files names are ending with `.sh`, and are not executable.
 Every file of the API is included by `buildbox_utils.sh`, which stands for the
 user API entry point.
@@ -92,18 +92,19 @@ No error is returned if the package is not already built or not cloned.
 - `BB_TARGET_SRC_DIR`: path where cloned package are stored
 #### Return
 1 if package doesn't exists, or if build mode clean operation is not
-supported, 0 on success
+supported, 2 if the clean operation failed, 0 on success
 ### bb\_wipe\_package()
 Generic function to wipe package sources and built files from target and
 project.
 Installed files in target `build` directory are not affected.
 No error is returned if the package is not already built or not cloned.
+A failing clean operation only prints a warning, sources being removed anyway.
 #### Parameters
 - Package name
 #### Expected environment
 - `BB_TARGET_SRC_DIR`: path where cloned package are stored
 #### Return
-0 on suuccess
+0 on success
 ### bb\_get\_build\_log\_warning\_count()
 Generic function to get build log file warning count.
 Supported warning format in build log:
@@ -750,11 +751,11 @@ and output in BuildBox.
 This mechanism is prepared by BuildBox launcher, which create the following
 resources:
 - a pipe where BuildBox can write the command (and its arguments) to run on
-the host, `workspace/tmp/launcher-ID_send.pipe`,
+the host, `$BB_PROJECT_DIR/tmp/launcher-ID_send.pipe`,
 - a pipe where host command returned code is written,
-`workspace/tmp/launcher-ID_ret.pipe`,
+`$BB_PROJECT_DIR/tmp/launcher-ID_ret.pipe`,
 - and a filename is reserved to write command output,
-`workspace/tmp/launcher-ID_send.out`.
+`$BB_PROJECT_DIR/tmp/launcher-ID_send.out`.
 
 The launcher ID is the launcher instance process ID, so each launcher can
 run host commands without conflict with other launchers instances.
@@ -976,8 +977,7 @@ Returns immediately.
 A stale lock, whose owner process is gone, is taken over.
 An exit action is configured to release the lock when the process ends.
 #### Parameters
-- Lock file path (must be located somewhere in BuildBox workspace
-directory)
+- Lock file path (must be located in the project directory)
 #### Return
 0 on success, 1 if lock not acquired, 2 on error
 ### bb\_lock\_release()
@@ -1002,9 +1002,9 @@ Log file defaults to .bbx/.logs/ if a project is active, else /tmp
 **Source file:** `_log.sh`
 ### bb\_get\_current\_log\_file()
 Get current log file path.
-If [bb_set_current_log_file()](#bb-set-current-log-file) was not called, log file is by default stored
-in session directory and named according to the running command,
-`COMMAND_NAME.log`.
+If [bb_set_current_log_file()](#bb-set-current-log-file) was not called, log file is by default
+`.bbx/.logs/COMMAND_NAME.log` when a project is active, else it is stored in
+`$TMPDIR` (or `/tmp`).
 #### Print
 Log file path
 ### bb\_set\_current\_log\_file()
@@ -1507,7 +1507,7 @@ Tools cleanup hooks are run in order of appearance in target tools list file
 #### Return
 0 on success
 ## Trash
-BuildBox Trash is located in the workspace `trash` directory, and can be
+BuildBox Trash is located in the project `trash` directory, and can be
 referenced through `BB_TRASH_DIR` environment.
 
 Older files are automatically removed after at least `BB_TRASH_KEEP_DAYS`.
@@ -1530,7 +1530,7 @@ The trash older files are automatically cleaned by a call to [bb_trash_clean()](
 #### Print
 File name in the trash
 #### Return
-0 on success, 1 if path is not in workspace.
+0 on success, 1 if path is not in the project.
 ### bb\_trash\_dir\_content()
 Clean a directory content.
 Files sent to trash are stored in a directory, nammed with the source
@@ -1543,4 +1543,4 @@ The trash older files are automatically cleaned by a call to [bb_trash_clean()](
 #### Print
 Directory name where the files have been moved to trash.
 #### Return
-0 on success, 1 if path is not a directory or not in workspace.
+0 on success, 1 if path is not a directory or not in the project.

@@ -185,6 +185,9 @@ git commit -m "Update profile"
 git push
 ```
 
+**Info:**
+`project goto` requires the [shell plugin](https://buildbox.trusted-objects.com/user/shell_plugin.html). Without it, use `cd .bbx`.
+
 Don't forget the project profile may have a `packages` submodule, which may need to be committed if you made changes to it.
 
 **Tip:**
